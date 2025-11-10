@@ -1,0 +1,72 @@
+#Trigger
+
+create database trig;
+use trig;
+
+create table borrower ( roll_no int, name varchar(20), dateofissue date, nameofbook varchar (20), status char(10));
+insert into borrower  values 
+(101, 'abc1','2017-7-16','dbms','r'),
+(102, 'abc2','2017-7-16','cns','i'),
+(103, 'abc3','2017-7-18','toc','i'),
+(104, 'abc4','2017-7-20','ds','i'),
+(105, 'abc5','2017-7-23','daa','r'),
+(106, 'abc6','2017-8-10','spm','r');
+
+create table library_audit ( roll_no int, name varchar(20), dateofissue date, nameofbook varchar (20), status char, ts timestamp);
+
+-- after insert trigger
+
+ # use Delimiter here
+ 
+ Delimiter //
+create trigger after_insert after insert on borrower for each row 
+begin
+insert into library_audit values (new.roll_no, new.name, new.dateofissue, new.nameofbook, new.status, current_timestamp());
+
+ 
+End;
+ //
+
+
+select * from borrower //
+select * from library_audit //
+
+
+insert into borrower  values (107, 'abc7','2017-8-10','dbms','i');
+select * from borrower //
+select * from library_audit //
+
+
+-- after delete trigger
+# if you want to delete and update the data from databse u have to use 1st this command (" set sql_safe_updates =0;")
+set sql_safe_updates =0;
+create trigger after_delete after delete on borrower for each row
+begin
+insert into library_audit values (old.roll_no, old.name, old.dateofissue, old.nameofbook, old.status, current_timestamp());
+end;
+//
+
+select * from borrower //
+select * from library_audit //
+
+delete from borrower where roll_no =105 //
+select * from library_audit //
+
+
+
+-- after update trigger
+
+create trigger after_update after update on borrower for each row
+begin
+insert into library_audit values (new.roll_no, new.name, new.dateofissue, new.nameofbook, new.status, current_timestamp());
+end;
+//
+
+select * from borrower //
+select * from library_audit //
+
+update borrower set status ='r' where borrower.roll_no = 104 //
+select * from borrower //
+select * from library_audit //
+
+
