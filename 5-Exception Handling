@@ -1,26 +1,93 @@
-CREATE TABLE Borrower (Roll INT PRIMARY KEY, Name VARCHAR(50), DateofIssue DATE, NameofBook VARCHAR(100), Status CHAR(1));
-CREATE TABLE Fine (Roll INT, Date DATE, Amt DECIMAL(10,2));
+5. Control structure and Exception handling 
+-- ======================================================
+-- 1. CREATE DATABASE AND SELECT IT
+-- ======================================================
+CREATE DATABASE abc;
+USE abc;
 
-INSERT INTO Borrower VALUES (101, 'Om', '2025-10-10', 'DBMS', 'I'), (102, 'Amit', '2025-10-20', 'Networking', 'I'), (103, 'Rahul', '2025-09-25', 'Java', 'I'), (104, 'Sneha', '2025-11-01', 'Python', 'I');
+-- ======================================================
+-- 2. CREATE TABLES
+-- ======================================================
+CREATE TABLE Borrower (
+  Roll INT PRIMARY KEY,
+  Name VARCHAR(50),
+  DateofIssue DATE,
+  NameofBook VARCHAR(100),
+  Status CHAR(1)
+);
 
-DELIMITER //
-CREATE PROCEDURE ReturnBook(IN p_roll INT, IN p_book VARCHAR(100))
+CREATE TABLE Fine (
+  Roll INT,
+  ReturnDate DATE,
+  Amount INT,
+  FOREIGN KEY (Roll) REFERENCES Borrower(Roll)
+);
+
+-- ======================================================
+-- 3. INSERT SAMPLE DATA INTO BORROWER TABLE
+-- ======================================================
+INSERT INTO Borrower VALUES
+ (101, 'Om', '2025-10-10', 'DBMS', 'I'),
+ (102, 'Amit', '2025-10-20', 'Networking', 'I'),
+ (103, 'Rahul', '2025-09-25', 'Java', 'I'),
+ (104, 'Sneha', '2025-11-01', 'Python', 'I');
+
+-- ======================================================
+-- 4. CREATE STORED PROCEDURE ReturnBook
+--     (Uses Control Structure + Exception Handling)
+-- ======================================================
+DELIMITER $$
+
+CREATE PROCEDURE ReturnBook(IN p_roll INT)
 BEGIN
-  DECLARE v_date DATE; DECLARE v_days INT; DECLARE v_fine DECIMAL(10,2) DEFAULT 0;
-  DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT 'Error: Invalid Roll or Book!' AS Message;
-  
-  SELECT DateofIssue INTO v_date FROM Borrower WHERE Roll = p_roll AND NameofBook = p_book AND Status = 'I';
-  SET v_days = DATEDIFF(CURDATE(), v_date);
-  
-  IF v_days > 30 THEN SET v_fine = v_days * 50;
-  ELSEIF v_days BETWEEN 15 AND 30 THEN SET v_fine = v_days * 5;
-  ELSE SET v_fine = 0;
+  DECLARE fine1 INT DEFAULT 0;
+  DECLARE noofdays INT DEFAULT 0;
+  DECLARE issuedate DATE;
+
+  -- Exception Handler
+  DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+  SELECT 'Error: Check table or column definitions' AS Message;
+
+  -- Fetch Issue Date
+  SELECT DateofIssue INTO issuedate 
+  FROM Borrower 
+  WHERE Roll = p_roll;
+
+  -- Calculate Days Since Issue
+  SELECT DATEDIFF(CURDATE(), issuedate) INTO noofdays;
+
+  -- Fine Calculation Using Control Structure
+  IF noofdays > 15 AND noofdays <= 30 THEN
+        SET fine1 = noofdays * 5;
+
+  ELSEIF noofdays > 30 THEN
+        SET fine1 = ((noofdays - 30) * 50) + (15 * 5);
+
+  ELSE
+        SET fine1 = 0;
   END IF;
-  
-  UPDATE Borrower SET Status = 'R' WHERE Roll = p_roll AND NameofBook = p_book;
-  IF v_fine > 0 THEN INSERT INTO Fine VALUES (p_roll, CURDATE(), v_fine); END IF;
-  SELECT CONCAT('Book returned successfully! Days Kept: ', v_days, ', Fine: Rs ', v_fine) AS Result;
+
+  -- Insert into Fine Table
+  INSERT INTO Fine VALUES (p_roll, CURDATE(), fine1);
+
+  -- Update Borrower Status to Returned
+  UPDATE Borrower 
+  SET Status = 'R'
+  WHERE Roll = p_roll;
+END $$
+
 DELIMITER ;
-CALL ReturnBook(101, 'DBMS');
-SELECT * FROM Borrower;
+
+-- ======================================================
+-- 5. CALL PROCEDURE FOR EACH STUDENT
+-- ======================================================
+CALL ReturnBook(101);
+CALL ReturnBook(102);
+CALL ReturnBook(103);
+CALL ReturnBook(104);
+
+-- ======================================================
+-- 6. DISPLAY FINAL OUTPUT
+-- ======================================================
 SELECT * FROM Fine;
+SELECT * FROM Borrower;
