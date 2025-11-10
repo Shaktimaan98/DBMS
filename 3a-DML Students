@@ -1,0 +1,76 @@
+3 (a) Design  SQL queries for suitable database application using SQL DML statements: 
+-- ======================================================
+-- CREATE TABLES
+-- ======================================================
+
+CREATE TABLE Student (
+    Roll INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Address VARCHAR(100)
+);
+
+CREATE TABLE Subject (
+    sub_code VARCHAR(10) PRIMARY KEY,
+    sub_name VARCHAR(50)
+);
+
+CREATE TABLE Marks (
+    Roll INT,
+    sub_code VARCHAR(10),
+    marks INT,
+    FOREIGN KEY (Roll) REFERENCES Student(Roll),
+    FOREIGN KEY (sub_code) REFERENCES Subject(sub_code)
+);
+
+-- ======================================================
+-- 1. INSERT 5 VALUES INTO ALL TABLES
+-- ======================================================
+
+INSERT INTO Student (Roll, Name, Address) VALUES
+(1, 'Amit', 'Pune'),
+(2, 'Pratik', 'Mumbai'),
+(3, 'Sneha', 'Nashik'),
+(4, 'Rohan', 'Satara'),
+(5, 'Tanvi', 'Kolhapur');
+
+INSERT INTO Subject (sub_code, sub_name) VALUES
+('DMS', 'Discrete Mathematics'),
+('DSA', 'Data Structures'),
+('OOP', 'Object Oriented Programming'),
+('DBMS', 'Database Systems'),
+('PHY', 'Physics');
+
+INSERT INTO Marks (Roll, sub_code, marks) VALUES
+(1, 'DMS', 82),
+(2, 'DSA', 68),
+(3, 'DMS', 74),
+(4, 'OOP', 91),
+(5, 'DBMS', 59);
+
+-- ======================================================
+-- 2. UPDATE ROW WHERE sub_code = 'DMS'
+-- ======================================================
+
+UPDATE Marks
+SET marks = 85
+WHERE sub_code = 'DMS';
+
+-- ======================================================
+-- 3. FIND STUDENTS WHOSE MARKS ARE LESS THAN 75
+-- ======================================================
+
+SELECT Student.Roll, Student.Name, Marks.marks
+FROM Student
+JOIN Marks ON Student.Roll = Marks.Roll
+WHERE Marks.marks < 75;
+
+-- ======================================================
+-- 4. DELETE THE RECORD OF THE STUDENT WHOSE NAME = 'Pratik'
+-- (Must delete from Marks first because of foreign key)
+-- ======================================================
+
+DELETE FROM Marks
+WHERE Roll = (SELECT Roll FROM Student WHERE Name = 'Pratik');
+
+DELETE FROM Student
+WHERE Name = 'Pratik';
