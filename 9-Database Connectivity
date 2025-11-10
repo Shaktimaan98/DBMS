@@ -1,0 +1,168 @@
+import java.io.*;  
+import java.sql.*;  
+import java.util.*;  
+
+public class DMA1 {  
+    public static void main(String[] args) throws Exception {  
+        int rno, age;  
+        String col1, col2, col3, col4, col5, col6;    
+        Connection con = null;  
+        Statement s = null;  
+        ResultSet rs = null;  
+        int ch;  
+        boolean flag = true;  
+        Scanner sc = new Scanner(System.in);  
+
+        try {  
+            // Load MySQL JDBC Driver
+            Class.forName("com.mysql.cj.jdbc.Driver");  
+            
+            // Connect to MySQL database
+            con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/teacher", "root", "mmcoe"
+            );  
+
+            do { 
+                System.out.println("\n=== MENU ===");
+                System.out.println("1. CREATE TABLE");
+                System.out.println("2. INSERT INTO TABLE");  
+                System.out.println("3. DELETE FROM TABLE");  
+                System.out.println("4. UPDATE DATA IN TABLE");  
+                System.out.println("5. VIEW ALL RECORDS");  
+                System.out.println("6. ALTER TABLE - ADD COLUMN");
+                System.out.println("7. ALTER TABLE - MODIFY COLUMN");
+                System.out.println("8. ALTER TABLE - DROP COLUMN");
+                System.out.println("9. EXIT");  
+                System.out.print("Enter your choice: ");  
+                ch = Integer.parseInt(sc.nextLine());  
+   
+                switch(ch) { 
+                    case 1:
+                        System.out.print("Enter the name of table to be created: ");
+                        String tname = sc.nextLine();   
+                        System.out.print("Enter first column name: ");
+                        col1 = sc.nextLine();  
+                        System.out.print("Enter second column name: ");
+                        col2 = sc.nextLine();  
+                        System.out.print("Enter third column name: ");
+                        col3 = sc.nextLine();
+
+                        String sql = "CREATE TABLE " + tname + 
+                            " (" + col1 + " INT NOT NULL, " +
+                            col2 + " VARCHAR(255), " + 
+                            col3 + " VARCHAR(255))"; 
+     
+                        s = con.createStatement();
+                        s.execute(sql);
+                        System.out.println("Table created successfully.");
+                        break;
+  
+                    case 2:  
+                        System.out.print("Enter table name: ");  
+                        String insert_table = sc.nextLine(); 
+                        System.out.print("Enter first column value: ");  
+                        col4 = sc.nextLine();  
+                        System.out.print("Enter second column value: ");  
+                        col5 = sc.nextLine();  
+                        System.out.print("Enter third column value: ");  
+                        col6 = sc.nextLine(); 
+   
+                        String query = "INSERT INTO " + insert_table +
+                            " VALUES('" + col4 + "','" + col5 + "','" + col6 + "')";
+                        s = con.createStatement();  
+                        s.executeUpdate(query); 
+                        System.out.println("Row inserted successfully.");
+                        break;  
+    
+                    case 3:  
+                        System.out.print("Enter ID to delete: ");  
+                        String str2 = sc.nextLine();    
+                        s = con.createStatement();  
+                        int x = s.executeUpdate("DELETE FROM stud WHERE id='" + str2 + "'");
+                        System.out.println("Deleted rows: " + x);  
+                        break;  
+   
+                    case 4:  
+                        System.out.print("Enter ID to update: ");  
+                        String id1 = sc.nextLine();
+                        System.out.print("Enter new marks: ");
+                        String mks = sc.nextLine();
+                        String query1 = "UPDATE stud SET marks='" + mks + 
+                            "' WHERE id='" + id1 + "'";  
+                        s = con.createStatement();  
+                        int y = s.executeUpdate(query1);  
+                        System.out.println("Updated rows: " + y);  
+                        break;  
+   
+                    case 5:  
+                        String query2 = "SELECT * FROM stud";  
+                        s = con.createStatement();  
+                        rs = s.executeQuery(query2);  
+                        
+                        boolean rec = false;  
+                        while (rs.next()) {  
+                            rec = true;
+                            col4 = rs.getString(1);  
+                            col5 = rs.getString(2);  
+                            col6 = rs.getString(3);  
+                            System.out.println(col4 + "\t" + col5 + "\t" + col6);  
+                        }
+                        if (!rec) System.out.println("No records found.");  
+                        break;  
+  
+                    case 6:
+                        System.out.print("Enter table name to alter: ");
+                        String table = sc.nextLine(); 
+                        System.out.print("Enter new column name: ");
+                        String colnm = sc.nextLine(); 
+                        String sql1 = "ALTER TABLE " + table + 
+                            " ADD " + colnm + " VARCHAR(100)";
+                        s = con.createStatement();
+                        s.executeUpdate(sql1);
+                        System.out.println("Column added successfully.");
+                        break;
+     
+                    case 7:
+                        System.out.print("Enter table name to modify column: ");
+                        String table1 = sc.nextLine(); 
+                        System.out.print("Enter column name to modify: ");
+                        String colnm1 = sc.nextLine(); 
+                        String sql2 = "ALTER TABLE " + table1 + 
+                            " MODIFY " + colnm1 + " VARCHAR(50)";
+                        s = con.createStatement();
+                        s.executeUpdate(sql2);
+                        System.out.println("Column modified successfully.");
+                        break;
+     
+                    case 8:
+                        System.out.print("Enter table name to drop column: ");
+                        String table2 = sc.nextLine(); 
+                        System.out.print("Enter column name to drop: ");
+                        String colnm2 = sc.nextLine(); 
+                        String sql3 = "ALTER TABLE " + table2 + 
+                            " DROP COLUMN " + colnm2;
+                        s = con.createStatement();
+                        s.executeUpdate(sql3);
+                        System.out.println("Column dropped successfully.");
+                        break;
+  
+                    case 9:  
+                        System.out.println("Exiting...");
+                        System.exit(0);  
+                        break;  
+   
+                    default:  
+                        System.out.println("Invalid choice. Please try again.");  
+                }  
+
+                System.out.print("\nDo you want to continue (yes/no)? ");  
+                String str = sc.nextLine();  
+                flag = str.equalsIgnoreCase("yes") || str.equalsIgnoreCase("y");  
+   
+            } while(flag); 
+ 
+        } catch(Exception e) {  
+            System.out.println("Error: " + e);  
+        } 
+    }  
+}
