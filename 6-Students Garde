@@ -1,0 +1,28 @@
+CREATE TABLE Stud_Marks (Roll INT PRIMARY KEY, Name VARCHAR(50), Total_Marks INT);
+CREATE TABLE Result (Roll INT, Name VARCHAR(50), Class VARCHAR(30));
+
+INSERT INTO Stud_Marks VALUES (1, 'Om', 1450), (2, 'Amit', 920), (3, 'Sneha', 870), (4, 'Rahul', 800);
+DROP PROCEDURE IF EXISTS proc_Grade;
+
+CREATE PROCEDURE proc_Grade(IN p_roll INT, IN p_name VARCHAR(50), IN p_marks INT)
+BEGIN
+  DECLARE v_class VARCHAR(30);
+  IF p_marks BETWEEN 990 AND 1500 THEN
+    SET v_class = 'Distinction';
+  ELSEIF p_marks BETWEEN 900 AND 989 THEN
+    SET v_class = 'First Class';
+  ELSEIF p_marks BETWEEN 825 AND 899 THEN
+    SET v_class = 'Higher Second Class';
+  ELSE
+    SET v_class = 'Fail';
+  END IF;
+  INSERT INTO Result VALUES (p_roll, p_name, v_class);
+  SELECT CONCAT('Student: ', p_name, ' | Marks: ', p_marks, ' | Class: ', v_class) AS Result;
+END;
+
+CALL proc_Grade(1, 'Om', 1450);
+CALL proc_Grade(2, 'Amit', 920);
+CALL proc_Grade(3, 'Sneha', 870);
+CALL proc_Grade(4, 'Rahul', 800);
+
+SELECT * FROM Result;
