@@ -1,0 +1,27 @@
+CREATE DATABASE IF NOT EXISTS CircleDB;
+USE CircleDB;
+
+CREATE TABLE IF NOT EXISTS areas (
+    radius INT,
+    area   DECIMAL(10,2)
+);
+
+#Delimeter
+DELIMITER //
+
+CREATE PROCEDURE CalculateAreas()
+BEGIN
+    DECLARE r INT DEFAULT 5;
+    DECLARE a DECIMAL(10,2);
+
+    WHILE r <= 9 DO
+        SET a = 3.14159 * r * r;  -- Area formula π * r^2
+        INSERT INTO areas (radius, area) VALUES (r, a);
+        SET r = r + 1;
+    END WHILE;
+END //
+
+
+CALL CalculateAreas();
+
+SELECT * FROM areas;
