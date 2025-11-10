@@ -19,7 +19,7 @@ public class DMA1 {
             
             // Connect to MySQL database
             con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/teacher", "root", "sqlpassword"
+                "jdbc:mysql://localhost:3306/teacher", "root", "mysql"
             );  
 
             do { 
