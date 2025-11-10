@@ -1,0 +1,106 @@
+3(b)  Design  SQL queries for suitable database application using SQL DML statements: 
+-- ======================================================
+-- CREATE TABLES
+-- ======================================================
+
+CREATE TABLE EMPLOYEE (
+    ECODE INT PRIMARY KEY,
+    NAME VARCHAR(50),
+    DESIG VARCHAR(50),
+    SGRADE VARCHAR(10),
+    DOJ DATE,
+    DOB DATE
+);
+
+CREATE TABLE SALGRADE (
+    SGRADE VARCHAR(10) PRIMARY KEY,
+    SALARY INT,
+    HRA INT
+);
+
+-- ======================================================
+-- INSERT DATA FROM THE GIVEN TABLES
+-- ======================================================
+
+INSERT INTO EMPLOYEE (ECODE, NAME, DESIG, SGRADE, DOJ, DOB) VALUES
+(101, 'Vikrant', 'Executive', 'S03', '2003-03-23', '1980-01-13'),
+(102, 'Ravi', 'Head-IT', 'S02', '2010-02-12', '1987-07-22'),
+(103, 'John Cena', 'Receptionist', 'S03', '2009-06-24', '1983-02-24'),
+(105, 'Azhar Ansari', 'GM', 'S02', '2009-08-11', '1984-03-03'),
+(108, 'Priyam Sen', 'CEO', 'S01', '2004-12-29', '1982-01-19');
+
+INSERT INTO SALGRADE (SGRADE, SALARY, HRA) VALUES
+('S01', 56000, 18000),
+('S02', 32000, 12000),
+('S03', 24000, 8000);
+
+-- ======================================================
+-- (i) Display NAME and DESIG of employees whose SGRADE is S02 or S03
+-- ======================================================
+
+SELECT NAME, DESIG
+FROM EMPLOYEE
+WHERE SGRADE IN ('S02', 'S03');
+
+-- ======================================================
+-- (ii) Display NAME, DESIG, SGRADE of employees who joined in year 2009
+-- ======================================================
+
+SELECT NAME, DESIG, SGRADE
+FROM EMPLOYEE
+WHERE YEAR(DOJ) = 2009;
+
+-- ======================================================
+-- (iii) Display SGRADE, ANNUAL_SALARY (SALARY * 12)
+-- ======================================================
+
+SELECT SGRADE, (SALARY * 12) AS ANNUAL_SALARY
+FROM SALGRADE;
+
+-- ======================================================
+-- (iv) Number of employees working in each SGRADE
+-- ======================================================
+
+SELECT SGRADE, COUNT(*) AS NO_OF_EMPLOYEES
+FROM EMPLOYEE
+GROUP BY SGRADE;
+
+-- ======================================================
+-- (v) Display NAME, DESIG, SALARY, HRA where SALARY < 50000
+-- ======================================================
+
+SELECT E.NAME, E.DESIG, S.SALARY, S.HRA
+FROM EMPLOYEE E
+JOIN SALGRADE S ON E.SGRADE = S.SGRADE
+WHERE S.SALARY < 50000;
+
+-- ======================================================
+-- (vi) Select MIN(DOJ), MAX(DOB) from employee
+-- ======================================================
+
+SELECT MIN(DOJ) AS EARLIEST_JOINING,
+       MAX(DOB) AS NEWEST_BIRTHDATE
+FROM EMPLOYEE;
+
+-- ======================================================
+-- (vii) Select SGRADE, Salary+HRA from SalGrade where SGRADE='S02'
+-- ======================================================
+
+SELECT SGRADE, (SALARY + HRA) AS TOTAL_PAY
+FROM SALGRADE
+WHERE SGRADE = 'S02';
+
+-- ======================================================
+-- (viii) Count distinct SGRADE from employee
+-- ======================================================
+
+SELECT COUNT(DISTINCT SGRADE) AS UNIQUE_GRADES
+FROM EMPLOYEE;
+
+-- ======================================================
+-- (ix) SUM and AVG salary from SALGRADE
+-- ======================================================
+
+SELECT SUM(SALARY) AS TOTAL_SALARY,
+       AVG(SALARY) AS AVERAGE_SALARY
+FROM SALGRADE;
