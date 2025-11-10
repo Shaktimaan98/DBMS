@@ -1,0 +1,72 @@
+// ===============================================
+// PRACTICAL: MongoDB Aggregation & Indexing Example
+// Database: Database1
+// Collection: Employee
+// Demonstrates: createCollection, insertMany, find, aggregate, indexes
+// ===============================================
+
+// Switch or create the database named "Database1"
+use("Database1")
+
+// -----------------------------------------------
+// CREATE SECTION
+// -----------------------------------------------
+
+// Create a collection named "Employee"
+db.createCollection("Employee")
+
+// -----------------------------------------------
+// INSERT SECTION
+// -----------------------------------------------
+
+// Insert multiple employee records into the collection
+db.Employee.insertMany([
+  { id: 1, Name: "Pankaj", Salary: 80000, Dept: "Comp" },
+  { id: 2, Name: "Daman", Salary: 50000, Dept: "Electrical" },
+  { id: 3, Name: "Aman", Salary: 70000, Dept: "Mechanical" },
+  { id: 4, Name: "Ajay", Salary: 56000, Dept: "Instru" },
+  { id: 5, Name: "Manoj", Salary: 78000, Dept: "Comp" }
+])
+
+// -----------------------------------------------
+// READ SECTION
+// -----------------------------------------------
+
+// Display all employee documents
+db.Employee.find().pretty()
+
+// -----------------------------------------------
+// INDEX SECTION
+// -----------------------------------------------
+
+// Create an index on the "Name" field to improve search performance
+db.Employee.createIndex({ Name: 1 })
+
+// Display all indexes created for this collection
+db.Employee.getIndexes()
+
+// -----------------------------------------------
+// AGGREGATION SECTION
+// -----------------------------------------------
+
+// Example 1: Filter (match) employees belonging to 'Comp' department
+db.Employee.aggregate([
+  { $match: { Dept: "Comp" } }
+])
+
+// Example 2: Group employees by Department and find
+// minimum, maximum, and average salaries in each department
+db.Employee.aggregate([
+  {
+    $group: {
+      _id: "$Dept",                     
+      minsal: { $min: "$Salary" },      
+      maxsal: { $max: "$Salary" },     
+      avgsal: { $avg: "$Salary" }       
+    }
+  }
+])
+
+// -----------------------------------------------
+// END OF PRACTICAL
+// -----------------------------------------------
