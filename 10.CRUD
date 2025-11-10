@@ -1,0 +1,100 @@
+// ==========================
+// PRACTICAL: MongoDB CRUD Operations
+// Includes: CRUD + SAVE method + Logical Operators
+// Database: Database1
+// Collection: books
+// ==========================
+
+// Switch to (or create) a new database named "Database1"
+use("Database1")
+
+// --------------------------
+// CREATE SECTION
+// --------------------------
+
+// Create a collection named "books"
+db.createCollection("books")
+
+// Insert multiple documents into the "books" collection
+db.books.insertMany([
+  { _id: 1, title: "DBMS", author: "abc", price: 500, available: true, category: "Database" },
+  { _id: 2, title: "DSA", author: "def", price: 450, available: false, category: "Programming" },
+  { _id: 3, title: "CN", author: "ghy", price: 600, available: true, category: "Networking" },
+  { _id: 4, title: "OS", author: "xyz", price: 700, available: true, category: "System" }
+])
+
+// --------------------------
+// READ SECTION
+// --------------------------
+
+// Display all documents (formatted)
+db.books.find().pretty()
+
+// Display all documents (compact)
+db.books.find()
+
+// Find document where title = "DBMS"
+db.books.find({ title: "DBMS" })
+
+// Find books having price greater than 500
+db.books.find({ price: { $gt: 500 } })
+
+// Use logical AND operator: available = true AND category = "Database"
+db.books.find({ $and: [ { available: true }, { category: "Database" } ] })
+
+// Use logical OR operator: author = "abc" OR author = "xyz"
+db.books.find({ $or: [ { author: "abc" }, { author: "xyz" } ] })
+
+// --------------------------
+// UPDATE SECTION
+// --------------------------
+
+// Update a single book's details (title = "DSA")
+db.books.updateOne(
+  { title: "DSA" },
+  { $set: { available: true, price: 480 } }
+)
+
+// Update all books where category = "Database"
+db.books.updateMany(
+  { category: "Database" },
+  { $set: { available: false } }
+)
+
+// Increment the price of all books by 50
+db.books.updateMany({}, { $inc: { price: 50 } })
+
+// --------------------------
+// SAVE METHOD (Replace Document)
+// --------------------------
+// Save replaces the entire document with given _id
+// Note: save() is deprecated in new versions but still valid for demonstration
+db.books.save({
+  _id: 2,
+  title: "DSA Updated",
+  author: "Sam",
+  price: 500,
+  available: true,
+  category: "Programming"
+})
+
+// --------------------------
+// DELETE SECTION
+// --------------------------
+
+// Delete one document where title = "OS"
+db.books.deleteOne({ title: "OS" })
+
+// Delete all books where available = false
+db.books.deleteMany({ available: false })
+
+// --------------------------
+// FINAL CHECK
+// --------------------------
+
+// Display all remaining documents after updates and deletions
+db.books.find().pretty()
+
+// --------------------------
+// END OF PRACTICAL
+// --------------------------
