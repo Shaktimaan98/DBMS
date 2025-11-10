@@ -1,34 +1,80 @@
-show databases;
-use xyz;
-CREATE TABLE Salesman (Salesman_id INT PRIMARY KEY, name VARCHAR(50), city VARCHAR(50), commission DECIMAL(5,2));
+4 Design at least  SQL queries for suitable database application using SQL DML statements: all types of Join, Sub-Query .
 
-CREATE TABLE Customer (Customer_id INT PRIMARY KEY, customer_name VARCHAR(50), city VARCHAR(50), grade INT, Salesman_id INT, FOREIGN KEY (Salesman_id) REFERENCES Salesman(Salesman_id));
+-- ======================================================
+-- Q1. Find the name and city of customers and salesmen 
+--     who live in the same city.
+-- ======================================================
 
-CREATE TABLE Orders (ord_no INT PRIMARY KEY, ord_date DATE, purch_amt DECIMAL(10,2), Customer_id INT, Salesman_id INT, FOREIGN KEY (Customer_id) REFERENCES Customer(Customer_id), FOREIGN KEY (Salesman_id) REFERENCES Salesman(Salesman_id));
+SELECT 
+    c.customer_name AS Customer_Name,
+    c.city AS City,
+    s.name AS Salesman_Name
+FROM Customer c
+INNER JOIN Salesman s
+ON c.city = s.city;
 
-INSERT INTO Salesman VALUES (5001, 'James', 'Paris', 0.15);
-INSERT INTO Salesman VALUES (5002, 'Nail', 'Rome', 0.13);
-INSERT INTO Salesman VALUES (5003, 'Pit', 'London', 0.11);
-INSERT INTO Salesman VALUES (5004, 'Paul', 'Paris', 0.14);
-INSERT INTO Salesman VALUES (5005, 'Lauson', 'New York', 0.12);
-select * from salesman;
 
-INSERT INTO Customer VALUES (3001, 'Brad', 'London', 200, 5003);
-INSERT INTO Customer VALUES (3002, 'Alex', 'Paris', 100, 5001);
-INSERT INTO Customer VALUES (3003, 'Stuart', 'Rome', 300, 5002);
-INSERT INTO Customer VALUES (3004, 'Sam', 'New York', 400, 5005);
-INSERT INTO Customer VALUES (3005, 'Robert', 'Paris', 200, 5004);
-select * from customer;
 
-INSERT INTO Orders VALUES (7001, '2012-10-10', 1500.00, 3002, 5001);
-INSERT INTO Orders VALUES (7002, '2012-10-10', 800.00, 3001, 5003);
-INSERT INTO Orders VALUES (7003, '2012-10-11', 2500.00, 3003, 5002);
-INSERT INTO Orders VALUES (7004, '2012-10-12', 3000.00, 3004, 5005);
-INSERT INTO Orders VALUES (7005, '2012-10-13', 2000.00, 3005, 5004);
-select * from orders;
+-- ======================================================
+-- Q2. Find names of all customers along with 
+--     the salesmen who work for them.
+-- ======================================================
 
-SELECT c.customer_name AS Customer_Name, c.city AS City, s.name AS Salesman_Name FROM Customer c INNER JOIN Salesman s ON c.city = s.city;
-SELECT c.customer_name AS Customer_Name, s.name AS Salesman_Name FROM Customer c INNER JOIN Salesman s ON c.Salesman_id = s.Salesman_id;
-SELECT o.ord_no, o.purch_amt FROM Orders o JOIN Customer c ON o.Customer_id=c.Customer_id JOIN Salesman s ON o.Salesman_id=s.Salesman_id WHERE c.city<>s.city;
-SELECT ord_no, ord_date, purch_amt FROM Orders WHERE purch_amt > (SELECT AVG(purch_amt) FROM Orders WHERE ord_date = '2012-10-10');
-SELECT o.ord_no, o.ord_date, o.purch_amt, s.name AS Salesman_Name, s.city FROM Orders o JOIN Salesman s ON o.Salesman_id = s.Salesman_id WHERE s.city = 'Paris';
+SELECT 
+    c.customer_name AS Customer_Name,
+    s.name AS Salesman_Name
+FROM Customer c
+JOIN Salesman s
+ON c.Salesman_id = s.Salesman_id;
+
+
+
+-- ======================================================
+-- Q3. Display all orders placed by customers whose city 
+--     is NOT the same as their salesman’s city.
+-- ======================================================
+
+SELECT 
+    o.ord_no,
+    o.purch_amt,
+    c.city AS Customer_City,
+    s.city AS Salesman_City
+FROM Orders o
+JOIN Customer c ON o.Customer_id = c.Customer_id
+JOIN Salesman s ON o.Salesman_id = s.Salesman_id
+WHERE c.city <> s.city;
+
+
+
+-- ======================================================
+-- Q4. Display orders whose value is greater than the 
+--     average order value of 10-Oct-2012.
+-- ======================================================
+
+SELECT 
+    ord_no,
+    ord_date,
+    purch_amt
+FROM Orders
+WHERE purch_amt > (
+    SELECT AVG(purch_amt)
+    FROM Orders
+    WHERE ord_date = '2012-10-10'
+);
+
+
+
+-- ======================================================
+-- Q5. Find all orders attributed to salesmen in Paris.
+-- ======================================================
+
+SELECT 
+    o.ord_no,
+    o.ord_date,
+    o.purch_amt,
+    s.name AS Salesman_Name,
+    s.city
+FROM Orders o
+JOIN Salesman s 
+ON o.Salesman_id = s.Salesman_id
+WHERE s.city = 'Paris';
