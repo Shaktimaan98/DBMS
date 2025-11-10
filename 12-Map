@@ -1,0 +1,27 @@
+// Switch to or create the database
+use Database1  
+
+// Insert sample documents into 'employee' collection
+db.employee.insertMany([
+  { "name": "eren", "age": 25, "rank": 1 },
+  { "name": "mikasa", "age": 24, "rank": 2 },
+  { "name": "jean", "age": 26, "rank": 4 },
+  { "name": "conny", "age": 23, "rank": 7 },
+  { "name": "armin", "age": 24, "rank": 3 }
+])
+
+// Define the map function: emit each age and rank
+var map = function() {
+  emit(this.age, this.rank);
+};
+
+// Define the reduce function: sum all ranks for the same age
+var reduce = function(age, rank) {
+  return Array.sum(rank);
+};
+
+// Perform MapReduce and store the result in a new collection 'resultCollection'
+db.employee.mapReduce(map, reduce, { out: "resultCollection" });
+
+// Display the contents of the resulting collection
+db.resultCollection.find().pretty();
