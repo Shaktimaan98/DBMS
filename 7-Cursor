@@ -1,0 +1,57 @@
+#cursor
+
+create database cur;
+use cur;
+
+create table o_roll_num( roll_no int, name varchar(20), address varchar (20));
+create table n_roll_num( roll_no int, name varchar(20), address varchar (20));
+
+insert into o_roll_num  values (1, 'Manas','Pune');
+insert into n_roll_num  values (2, 'Om','Satara');
+insert into o_roll_num  values (3, 'Tejas','Mumbai');
+insert into o_roll_num  values (4, 'Tanmay','Nashik');
+insert into o_roll_num  values (5, 'Karan','Nagar');
+
+ # use Delimiter here
+ 
+ Delimiter //
+ create procedure p3 (in r1 int)
+ begin
+ declare r2 int ;
+ declare exit_loop boolean ;
+ declare c1 cursor for select roll_no from o_roll_num where roll_no > r1;
+ declare continue handler for not found set exit_loop = true;
+ open c1;
+ e_loop:loop
+ fetch c1 into r2;
+ if not exists ( select * from n_roll_num where roll_no = r2)
+ then
+ insert into n_roll_num select * from o_roll_num where roll_no= r2;
+ end if;
+ if exit_loop
+ then
+ close c1;
+ leave e_loop;
+ end if;
+ end loop e_loop;
+ 
+End //
+
+call p3(3);
+select * from n_roll_num;
+
+call p3(0);
+select * from n_roll_num;
+
+
+insert into o_roll_num  values (6, 'Ritesh','Sangali');
+
+call p3(4);
+select * from n_roll_num;
+
+
+
+
+
+
+
