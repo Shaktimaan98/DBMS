@@ -1,373 +1,186 @@
 import java.sql.*;
-
 import java.util.*;
-
-
 
 public class DMA1 {
 
-
-
     public static void main(String[] args) {
 
-
-
         Connection con = null;
-
         Statement stmt = null;
-
         ResultSet rs = null;
-
         Scanner sc = new Scanner(System.in);
 
-
-
         try {
-
             // Load JDBC Driver
-
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-
-
             // Connect to MySQL
-
             con = DriverManager.getConnection(
-
-                "jdbc:mysql://localhost:3306/7B",
-
-                "root",
-
-                "Tanmay2502"
-
+                "jdbc:mysql://localhost:3306/Studnts",
+                "JDBC",
+                "why-sql@69"
             );
-
-
 
             boolean flag = true;
 
-
-
             while (flag) {
 
-
-
                 System.out.println("\n===== MENU =====");
-
                 System.out.println("1. CREATE TABLE");
-
                 System.out.println("2. INSERT RECORD");
-
                 System.out.println("3. DELETE RECORD");
-
                 System.out.println("4. UPDATE RECORD");
-
                 System.out.println("5. VIEW ALL RECORDS");
-
                 System.out.println("6. EXIT");
-
                 System.out.print("Enter your choice: ");
-
-
 
                 int ch = Integer.parseInt(sc.nextLine());
 
-
-
                 switch (ch) {
 
-
-
                     // ---------------------------------------------------------
-
                     // 1. CREATE TABLE
-
                     // ---------------------------------------------------------
-
                     case 1:
-
                         System.out.print("Enter table name: ");
-
                         String tname = sc.nextLine();
 
-
-
                         System.out.print("Enter column1 name (INT): ");
-
                         String c1 = sc.nextLine();
 
-
-
                         System.out.print("Enter column2 name (VARCHAR): ");
-
                         String c2 = sc.nextLine();
 
-
-
                         System.out.print("Enter column3 name (VARCHAR): ");
-
                         String c3 = sc.nextLine();
 
-
-
                         String createSQL =
-
                                 "CREATE TABLE " + tname +
-
                                 " (" + c1 + " INT, " +
-
                                 c2 + " VARCHAR(255), " +
-
                                 c3 + " VARCHAR(255))";
 
-
-
                         con.createStatement().execute(createSQL);
-
                         System.out.println("✅ Table created successfully.");
-
                         break;
 
-
-
                     // ---------------------------------------------------------
-
                     // 2. INSERT RECORD
-
                     // ---------------------------------------------------------
-
                     case 2:
-
                         System.out.print("Enter table name: ");
-
                         String insTable = sc.nextLine();
 
-
-
                         String insertSQL =
-
                                 "INSERT INTO " + insTable + " VALUES (?, ?, ?)";
-
                         PreparedStatement ps = con.prepareStatement(insertSQL);
 
-
-
                         System.out.print("Enter value for Column1 (INT): ");
-
                         ps.setInt(1, Integer.parseInt(sc.nextLine()));
 
-
-
                         System.out.print("Enter value for Column2: ");
-
                         ps.setString(2, sc.nextLine());
 
-
-
                         System.out.print("Enter value for Column3: ");
-
                         ps.setString(3, sc.nextLine());
 
-
-
                         ps.executeUpdate();
-
                         System.out.println("✅ Record inserted.");
-
                         break;
 
-
-
                     // ---------------------------------------------------------
-
                     // 3. DELETE RECORD
-
                     // ---------------------------------------------------------
-
                     case 3:
-
                         System.out.print("Enter table name: ");
-
                         String delTable = sc.nextLine();
 
-
-
                         System.out.print("Enter column name to match: ");
-
                         String delCol = sc.nextLine();
 
-
-
                         System.out.print("Enter value to delete: ");
-
                         String delVal = sc.nextLine();
 
-
-
                         String deleteSQL =
-
                                 "DELETE FROM " + delTable +
-
                                 " WHERE " + delCol + " = '" + delVal + "'";
 
-
-
                         stmt = con.createStatement();
-
                         int deleted = stmt.executeUpdate(deleteSQL);
 
-
-
                         System.out.println("✅ Records deleted: " + deleted);
-
                         break;
 
-
-
                     // ---------------------------------------------------------
-
                     // 4. UPDATE RECORD
-
                     // ---------------------------------------------------------
-
                     case 4:
-
                         System.out.print("Enter table name: ");
-
                         String upTable = sc.nextLine();
 
-
-
                         System.out.print("Enter WHERE column name: ");
-
                         String whereCol = sc.nextLine();
 
-
-
                         System.out.print("Enter value to match: ");
-
                         String whereVal = sc.nextLine();
 
-
-
                         System.out.print("Enter column to update: ");
-
                         String updateCol = sc.nextLine();
 
-
-
                         System.out.print("Enter new value: ");
-
                         String newValue = sc.nextLine();
 
-
-
                         String updateSQL =
-
                                 "UPDATE " + upTable +
-
                                 " SET " + updateCol + " = '" + newValue +
-
                                 "' WHERE " + whereCol + " = '" + whereVal + "'";
 
-
-
                         stmt = con.createStatement();
-
                         int updated = stmt.executeUpdate(updateSQL);
 
-
-
                         System.out.println("✅ Records updated: " + updated);
-
                         break;
 
-
-
                     // ---------------------------------------------------------
-
                     // 5. VIEW RECORDS
-
                     // ---------------------------------------------------------
-
                     case 5:
-
                         System.out.print("Enter table name: ");
-
                         String viewTable = sc.nextLine();
 
-
-
                         String viewSQL = "SELECT * FROM " + viewTable;
-
-
-
                         rs = con.createStatement().executeQuery(viewSQL);
 
-
-
                         ResultSetMetaData meta = rs.getMetaData();
-
                         int columns = meta.getColumnCount();
 
-
-
                         System.out.println("\n=== TABLE DATA ===");
-
                         while (rs.next()) {
-
                             for (int i = 1; i <= columns; i++) {
-
                                 System.out.print(rs.getString(i) + "\t");
-
                             }
-
                             System.out.println();
-
                         }
-
                         break;
 
-
-
                     // ---------------------------------------------------------
-
                     // EXIT
-
                     // ---------------------------------------------------------
-
                     case 6:
-
                         System.out.println("✅ Exiting program...");
-
                         System.exit(0);
-
                         break;
-
-
 
                     default:
-
                         System.out.println("❌ Invalid choice. Try again.");
-
                 }
 
-
-
                 System.out.print("\nDo you want to continue? (yes/no): ");
-
                 flag = sc.nextLine().equalsIgnoreCase("yes");
-
             }
 
-
-
         } catch (Exception e) {
-
             System.out.println("❌ ERROR: " + e.getMessage());
-
         }
-
     }
-
 }
