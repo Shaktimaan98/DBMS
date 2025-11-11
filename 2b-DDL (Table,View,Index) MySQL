@@ -56,7 +56,7 @@ SELECT sub_code, sub_name
 FROM Subject;
 
 -- To test:
--- SELECT * FROM Subject_View;
+SELECT * FROM Subject_View;
 
 -- ======================================================
 -- 4. CREATE INDEX ON Marks (sub_code)
@@ -66,7 +66,7 @@ CREATE INDEX idx_marks_subcode
 ON Marks(sub_code);
 
 -- To verify:
--- SHOW INDEX FROM Marks;
+ SHOW INDEX FROM Marks;
 
 
 
