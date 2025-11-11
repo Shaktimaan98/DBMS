@@ -1,57 +1,111 @@
-#cursor
+-- ===========================================================
+-- MYSQL – CURSORS PRACTICAL (ALL IN ONE)
+-- ===========================================================
 
-create database cur;
-use cur;
+-- -----------------------------
+-- 1. CREATE TABLES
+-- -----------------------------
+CREATE TABLE Cust_Old (
+    Cust_Id INT PRIMARY KEY,
+    Cust_Name VARCHAR(50),
+    City VARCHAR(50)
+);
 
-create table o_roll_num( roll_no int, name varchar(20), address varchar (20));
-create table n_roll_num( roll_no int, name varchar(20), address varchar (20));
+CREATE TABLE Cust_New (
+    Cust_Id INT,
+    Cust_Name VARCHAR(50),
+    City VARCHAR(50)
+);
 
-insert into o_roll_num  values (1, 'Manas','Pune');
-insert into n_roll_num  values (2, 'Om','Satara');
-insert into o_roll_num  values (3, 'Tejas','Mumbai');
-insert into o_roll_num  values (4, 'Tanmay','Nashik');
-insert into o_roll_num  values (5, 'Karan','Nagar');
+-- -----------------------------
+-- 2. INSERT SAMPLE DATA
+-- -----------------------------
+INSERT INTO Cust_Old VALUES (101, 'Amit', 'Pune');
+INSERT INTO Cust_Old VALUES (102, 'Rahul', 'Mumbai');
 
- # use Delimiter here
- 
- Delimiter //
- create procedure p3 (in r1 int)
- begin
- declare r2 int ;
- declare exit_loop boolean ;
- declare c1 cursor for select roll_no from o_roll_num where roll_no > r1;
- declare continue handler for not found set exit_loop = true;
- open c1;
- e_loop:loop
- fetch c1 into r2;
- if not exists ( select * from n_roll_num where roll_no = r2)
- then
- insert into n_roll_num select * from o_roll_num where roll_no= r2;
- end if;
- if exit_loop
- then
- close c1;
- leave e_loop;
- end if;
- end loop e_loop;
- 
-End //
+INSERT INTO Cust_New VALUES (101, 'Amit', 'Pune');   -- duplicate
+INSERT INTO Cust_New VALUES (103, 'Sneha', 'Nashik'); -- new
+INSERT INTO Cust_New VALUES (104, 'John', 'Delhi');   -- new
 
-call p3(3);
-select * from n_roll_num;
+-- ===========================================================
+-- 3. MYSQL DOES NOT SUPPORT IMPLICIT CURSORS
+-- (But INSERT shows affected rows)
+-- ===========================================================
+INSERT INTO Cust_Old VALUES (105, 'Karan', 'Satara');
+SELECT ROW_COUNT() AS Inserted_Rows;
 
-call p3(0);
-select * from n_roll_num;
+-- ===========================================================
+-- 4. EXPLICIT CURSOR – DISPLAY Cust_Old
+-- ===========================================================
+DELIMITER $$
 
+CREATE PROCEDURE Show_Customers()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE v_id INT;
+    DECLARE v_name VARCHAR(50);
+    DECLARE v_city VARCHAR(50);
 
-insert into o_roll_num  values (6, 'Ritesh','Sangali');
+    DECLARE cur1 CURSOR FOR
+        SELECT Cust_Id, Cust_Name, City FROM Cust_Old;
 
-call p3(4);
-select * from n_roll_num;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
+    OPEN cur1;
 
+    read_loop: LOOP
+        FETCH cur1 INTO v_id, v_name, v_city;
+        IF done = 1 THEN
+            LEAVE read_loop;
+        END IF;
+        SELECT CONCAT(v_id, ' - ', v_name, ' - ', v_city) AS Record;
+    END LOOP;
 
+    CLOSE cur1;
+END$$
 
+DELIMITER ;
 
+CALL Show_Customers();
 
+-- ===========================================================
+-- 5. PARAMETERIZED CURSOR – MERGE Cust_New → Cust_Old
+-- ===========================================================
+DELIMITER $$
 
+CREATE PROCEDURE Merge_Customers()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE p_id INT;
+
+    -- Cursor to fetch only IDs from Cust_New
+    DECLARE cur_ids CURSOR FOR
+        SELECT Cust_Id FROM Cust_New;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN cur_ids;
+
+    merge_loop: LOOP
+        FETCH cur_ids INTO p_id;
+        IF done = 1 THEN
+            LEAVE merge_loop;
+        END IF;
+
+        -- Check if record already exists
+        IF NOT EXISTS (SELECT 1 FROM Cust_Old WHERE Cust_Id = p_id) THEN
+            -- Insert full row using parameter
+            INSERT INTO Cust_Old
+            SELECT * FROM Cust_New WHERE Cust_Id = p_id;
+            SELECT CONCAT('Inserted: ', p_id) AS Status;
+        ELSE
+            SELECT CONCAT('Skipped (Already Exists): ', p_id) AS Status;
+        END IF;
+    END LOOP;
+
+    CLOSE cur_ids;
+END$$
+
+DELIMITER ;
+
+CALL Merge_Customers();
