@@ -1,24 +1,47 @@
-create database lib;
-use lib;
-create table library(bno int(5),bname varchar(40),author varchar(20),allowed_days int(5));
-create table library_audit(bno int(5),old_all_days int(5),new_all_days int(5));
-insert into library values(1,'Database Systems','Connally T',10);
-insert into library values(2,'System Programming','John Donovan',20);
-insert into library values(3,'Computer Network & Internet','Douglas E. Comer',18);
-insert into library values(4,'Agile Project Management','Ken Schwaber',24);
-insert into library values(5,'Python for Data Analysis','Wes McKinney',12);
-select * from library;
-delimiter //
-create trigger tr1
-before update on library
-for each row
-begin
-insert into library_audit values(new.bno,old.allowed_days,new.allowed_days);
-end //
-update library set allowed_days=15 where bno=1; //
-update library set allowed_days=25 where bno=2; //
-update library set allowed_days=13 where bno=3; // 
-update library set allowed_days=19 where bno=4; //
-update library set allowed_days=17 where bno=5; // 
-select * from library; //
-select * from library_audit; //
+CREATE DATABASE lib;
+USE lib;
+
+CREATE TABLE library(
+    bno INT(5),
+    bname VARCHAR(40),
+    author VARCHAR(20),
+    allowed_days INT(5)
+);
+
+CREATE TABLE library_audit(
+    bno INT(5),
+    old_all_days INT(5),
+    new_all_days INT(5)
+);
+
+INSERT INTO library VALUES
+(1,'Database Systems','Connally T',10),
+(2,'System Programming','John Donovan',20),
+(3,'Computer Network & Internet','Douglas E. Comer',18),
+(4,'Agile Project Management','Ken Schwaber',24),
+(5,'Python for Data Analysis','Wes McKinney',12);
+
+SELECT * FROM library;
+
+DELIMITER //
+
+CREATE TRIGGER tr1
+BEFORE UPDATE ON library
+FOR EACH ROW
+BEGIN
+    INSERT INTO library_audit VALUES (NEW.bno, OLD.allowed_days, NEW.allowed_days);
+END;
+//
+
+DELIMITER ;
+
+-- Perform updates
+UPDATE library SET allowed_days = 15 WHERE bno = 1;
+UPDATE library SET allowed_days = 25 WHERE bno = 2;
+UPDATE library SET allowed_days = 13 WHERE bno = 3;
+UPDATE library SET allowed_days = 19 WHERE bno = 4;
+UPDATE library SET allowed_days = 17 WHERE bno = 5;
+
+-- Check results
+SELECT * FROM library;
+SELECT * FROM library_audit;
